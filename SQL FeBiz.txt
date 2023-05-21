@@ -1,0 +1,124 @@
+USE [master]
+GO
+
+--Switch to FeBiz
+USE FeBiz
+GO
+
+--Create the table Farmer
+CREATE TABLE Farmer
+   (FarmerID int IDENTITY(1,1) PRIMARY KEY NOT NULL,
+    Phone varchar(17) NOT NULL,
+    Fax varchar(17) NOT NULL,
+    Email varchar(50) NOT NULL,
+    Password char(128) NOT NULL,
+    RegistrationDate datetime NOT NULL,
+    RegistrationConfirmation bit NOT NULL,
+    AddressLine1 varchar(25) NOT NULL,
+    AddressLine2 varchar(25) NULL,
+    PostCode varchar(10) NOT NULL,
+    City varchar(25) NOT NULL,
+    Country varchar(25) NOT NULL,
+    VerificationCode char(10) NOT NULL,
+    FarmerName varchar(30) NOT NULL,
+    BankAccountNumber varchar(15) NULL,
+    BankAccountTitle varchar(30) NULL,
+    IBAN varchar(30) NULL,
+    SwiftBIC varchar(11) NULL,
+    BankName varchar(30) NULL,
+    BankBranchName varchar(30) NULL)
+GO
+
+--Create the table Company
+CREATE TABLE Company
+   (CompanyID int IDENTITY(1,1) PRIMARY KEY NOT NULL,
+    Phone varchar(17) NOT NULL,
+    Fax varchar(17) NOT NULL,
+    Email varchar(50) NOT NULL,
+    Password char(128) NOT NULL,
+    RegistrationDate datetime NOT NULL,
+    RegistrationConfirmation bit NOT NULL,
+    AddressLine1 varchar(25) NOT NULL,
+    AddressLine2 varchar(25) NULL,
+    PostCode varchar(10) NOT NULL,
+    City varchar(25) NOT NULL,
+    Country varchar(25) NOT NULL,
+    VerificationCode char(10) NOT NULL,
+    CompanyName varchar(30) NOT NULL,
+    ContactPersonName varchar(30) NOT NULL,
+    BranchName varchar(30) NULL)
+GO
+
+--Create the table Category
+CREATE TABLE Category
+   (CategoryID int IDENTITY(1,1) PRIMARY KEY NOT NULL,
+    Type varchar(25) NOT NULL,
+    SubType varchar(25) NOT NULL)
+GO
+
+--Create the table Product
+CREATE TABLE Product
+   (ProductID int IDENTITY(1,1) PRIMARY KEY NOT NULL,
+    ProductName varchar(30) NOT NULL,
+    OfferExpiry datetime NOT NULL,
+    TotalQuantity int NOT NULL,
+    PacketSize int NOT NULL,
+    PacketSizeUnit varchar(10) NOT NULL,
+    Active bit NOT NULL,
+    Price float NOT NULL,
+    Quality int NOT NULL,
+    RegistrationDate datetime NOT NULL,
+    CategoryID int REFERENCES Category (CategoryID),
+    FarmerID int REFERENCES Farmer (FarmerID))
+GO
+
+--Create the table Renewal
+CREATE TABLE Renewal
+   (RenewalID int IDENTITY(1,1) NOT NULL,
+    RenewalDate datetime NOT NULL,
+    ProductID int REFERENCES Product (ProductID), 
+    Constraint PK_Renewal PRIMARY KEY (ProductID, RenewalID))
+GO
+
+--Create the table BizOrder
+CREATE TABLE BizOrder
+   (OrderID int IDENTITY(1,1) PRIMARY KEY NOT NULL,
+    OrderName varchar(25) NOT NULL,
+    OrderDate datetime NOT NULL,
+    QuantityOrdered int NOT NULL,
+    Unit varchar(10) NOT NULL,
+    MinimunQuality int NOT NULL,
+    CategoryID int REFERENCES Category (CategoryID),
+    CompanyID int REFERENCES Company (CompanyID))
+GO
+
+--Create the table Sale
+CREATE TABLE Sale
+   (SaleID int IDENTITY(1,1) NOT NULL,
+    NumberOfPacket int NOT NULL,
+    FarmerToCompanyRating int NULL,
+    CompanyToFarmerRating int NULL,
+    ProductID int REFERENCES Product (ProductID),
+    OrderID int REFERENCES BizOrder (OrderID),
+    Constraint PK_Sale PRIMARY KEY (OrderID, SaleID))
+GO
+
+-----------------------------------------------------------------
+
+USE master;
+GO
+
+--Delete the Febiz database if it exists.
+IF EXISTS(SELECT * from sys.databases WHERE name='FeBiz')
+BEGIN
+    DROP DATABASE FeBiz;
+END
+
+--Create a new database called FeBiz.
+CREATE DATABASE FeBiz;
+GO
+
+--Switch to FeBiz
+USE FeBiz
+GO
+
